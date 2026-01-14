@@ -1,14 +1,18 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors')
 
 const app = express();
+// Parse incoming JSON requests and make data available in req.body
 app.use(express.json());
+// Parse URL-encoded form data
+app.use(express.urlencoded({ extended: false }));
+app.use(cors());
+const postSuggestionRoutes = require('./routes/postSuggestion')
 
-app.get('/', (req, res) => {
-  res.send('AI Post Suggestion API is running');
-});
+app.use('/api',postSuggestionRoutes)
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
