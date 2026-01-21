@@ -39,18 +39,47 @@ exports.addPost = async (req, res, next) => {
 }
 
 exports.getSuggestedPosts = async (req, res, next) => {
-    const semanticSearchText = req.body.semanticSearchText;
-    const maxPostCount = req.body.maxPostCount
-    const embeddingsResponse = await openai.embeddings.create({
+    try {
+      const semanticSearchText = req.body.semanticSearchText;
+      let maxPostCount = req.body.maxPostCount;
+  
+      // Validate input
+      if (!semanticSearchText || typeof semanticSearchText !== 'string') {
+        return res.status(400).json({ error: 'semanticSearchText is required and must be a string' });
+      }
+  
+      if (!maxPostCount || typeof maxPostCount !== 'number' || maxPostCount <= 0) {
+        maxPostCount = 3; // default value
+      }
+  
+      // Get embeddings
+      const embeddingsResponse = await openai.embeddings.create({
         model: process.env.EMBEDDING_MODEL,
         input: semanticSearchText
-    })
-    const result = await qdrant.search('posts', {
-        vector: embeddingsResponse.data[0].embedding,
+      });
+  
+      if (
+        !embeddingsResponse?.data ||
+        !Array.isArray(embeddingsResponse.data) ||
+        !embeddingsResponse.data[0]?.embedding
+      ) {
+        return res.status(500).json({ error: 'Failed to generate embeddings' });
+      }
+  
+      const embeddingVector = embeddingsResponse.data[0].embedding;
+  
+      // Perform search
+      const searchResult = await qdrant.search('posts', {
+        vector: embeddingVector,
         limit: maxPostCount,
-    })
-    response = result.map((vector) => vector.payload.postId);
-    res.status(200).json({
-        response
-    })
-}
+        with_payload: true
+      });
+  
+      const response = searchResult.map((vector) => vector.payload.postId);
+      
+      res.status(200).json({ response });
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error', details: error.message });
+    }
+  };
+  
