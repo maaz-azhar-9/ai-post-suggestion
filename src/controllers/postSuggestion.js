@@ -10,7 +10,7 @@ exports.addPost = async (req, res, next) => {
             })
         }
         const response = await openai.embeddings.create({
-            model: 'text-embedding-3-small',
+            model: process.env.EMBEDDING_MODEL,
             input: req.body.postTitle + ' ' + req.body.postContent
         })
 
@@ -38,9 +38,19 @@ exports.addPost = async (req, res, next) => {
     }
 }
 
-exports.getSuggestedPosts = (req,res,next) =>{
-    //TODO: implement get suggested posts controller
+exports.getSuggestedPosts = async (req, res, next) => {
+    const semanticSearchText = req.body.semanticSearchText;
+    const maxPostCount = req.body.maxPostCount
+    const embeddingsResponse = await openai.embeddings.create({
+        model: process.env.EMBEDDING_MODEL,
+        input: semanticSearchText
+    })
+    const result = await qdrant.search('posts', {
+        vector: embeddingsResponse.data[0].embedding,
+        limit: maxPostCount,
+    })
+    response = result.map((vector) => vector.payload.postId);
     res.status(200).json({
-        message:"Yeah, we are going to implement AI post suggestion"
+        response
     })
 }
