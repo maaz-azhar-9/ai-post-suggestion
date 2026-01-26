@@ -1,13 +1,11 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors')
 
 const app = express();
 // Parse incoming JSON requests and make data available in req.body
 app.use(express.json());
 // Parse URL-encoded form data
 app.use(express.urlencoded({ extended: false }));
-app.use(cors());
 const postSuggestionRoutes = require('./routes/postSuggestion')
 
 app.use('/api',postSuggestionRoutes)
