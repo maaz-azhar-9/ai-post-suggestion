@@ -21,6 +21,7 @@ exports.addPost = async (req, res, next) => {
                 payload: {
                     postId: req.body.postId,
                     userId: req.body.userId,
+                    postTitle: req.body.postTitle,
                     createdAt: new Date().toISOString()
                 }
             }
@@ -75,7 +76,7 @@ exports.getSuggestedPosts = async (req, res, next) => {
         with_payload: true
       });
   
-      const response = searchResult.map((vector) => vector.payload.postId);
+      const response = searchResult.map((vector) => { return {postId: vector.payload.postId, postTitle: vector.payload.postTitle ?? "Temporary Post Title PlaceHolder"}});
       
       res.status(200).json({ response });
     } catch (error) {
