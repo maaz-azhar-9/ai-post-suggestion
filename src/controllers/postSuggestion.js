@@ -76,7 +76,12 @@ exports.getSuggestedPosts = async (req, res, next) => {
         with_payload: true
       });
   
-      const response = searchResult.map((vector) => { return {postId: vector.payload.postId, postTitle: vector.payload.postTitle ?? "Temporary Post Title PlaceHolder"}});
+      const response = searchResult.map((vector) => {
+        return {
+          postId: vector.payload.postId,
+          postTitle: vector.payload.postTitle ?? "Temporary Title PlaceHolder"
+        }
+      });
       
       res.status(200).json({ response });
     } catch (error) {
