@@ -1,7 +1,9 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 
 const app = express();
+app.use(cors());
 // Parse incoming JSON requests and make data available in req.body
 app.use(express.json());
 // Parse URL-encoded form data
