@@ -88,4 +88,43 @@ exports.getSuggestedPosts = async (req, res, next) => {
       res.status(500).json({ error: 'Internal server error', details: error.message });
     }
   };
+
+  exports.deletePost = async (req, res) => {
+    try {
+      const { id: postId } = req.params;
+  
+      if (!postId) {
+        return res.status(400).json({
+          message: 'postId is required'
+        });
+      }
+  
+      const deleteResult = await qdrant.delete('posts', {
+        filter: {
+          must: [
+            {
+              key: 'postId',
+              match: {
+                value: postId
+              }
+            }
+          ]
+        }
+      });
+  
+      return res.status(200).json({
+        message: 'Post deleted successfully',
+        postId,
+        qdrantStatus: deleteResult?.result?.status ?? 'acknowledged'
+      });
+  
+    } catch (error) {
+      
+      return res.status(500).json({
+        message: 'Failed to delete post',
+        error: error.message
+      });
+    }
+  };
+  
   
