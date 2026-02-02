@@ -88,21 +88,4 @@ exports.getSuggestedPosts = async (req, res, next) => {
       res.status(500).json({ error: 'Internal server error', details: error.message });
     }
   };
-
-  exports.healthCheck = async (req, res) => {
-    try {
-      // Optional: add checks like DB connection or internal service health
-      res.status(200).json({
-        status: 'ok',
-        message: 'AI features service is ready!',
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('Health check failed:', error);
-      res.status(500).json({
-        status: 'error',
-        message: 'AI features service health check failed'
-      });
-    }
-  };
   
